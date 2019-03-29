@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 	pixelChangingValues changer5;
 	pixelChangingValues changer6;	//hidden pic one
 
-	Mat hidden = createHiddenImage("Penguins Stretch.jpg", changer6);
+	Mat hidden = createHiddenImage("Penguins.jpg", changer6);
 	// Check for failure
 	if (hidden.empty())
 	{
@@ -85,15 +85,6 @@ int main(int argc, char** argv)
 		//show the frame in the created window
 		imshow(windowNameOfOriginalImage, mainWindow);
 
-		//change color values of the image matrix
-		//std::vector<bool> input = { true, false };
-		//tbb::parallel_for(size_t(0), input.size(), size_t(1), [=](size_t i) {
-		//	changePixelsMulti(input[i]);
-		//});
-		//y += width;
-
-		//changePixels(true);
-		//changePixels(false);
 		changePixelsNoise(changer1);
 
 		//first few if statements for the first round about until all lines are in
@@ -369,7 +360,7 @@ void hiddenPicHelper(const pixelChangingValues &changer, const Mat &hidden) {
 }
 
 /*
-	creates the hidden image Mat object from a file and positions it in the center
+	creates the hidden image Mat object from a file and positions/scales it in the center
 		@image -- the hidden image
 		@fileName -- the file name
 		@changer -- the pixelChangingValues struct that will be asscociated with this image (w/ its image Coordinate values)
@@ -381,10 +372,18 @@ Mat createHiddenImage(string fileName, pixelChangingValues &changer)
 
 	//if it isn't empty, then we can center it
 	if (!image.empty()) {
-		changer.imageStartX = changer.subtractedX = (mainWindow.cols - image.cols) / 2;
-		changer.imageMaxX = changer.imageStartX + image.cols - 1;
-		changer.imageStartY = changer.subtractedY = (mainWindow.rows - image.rows) / 2;
-		changer.imageMaxY = changer.imageStartY + image.rows - 1;
+
+		//scales the image to the size of the window
+		Size scaled(1700, 1000);
+		Mat scaledImg;
+		resize(image, scaledImg, scaled);
+
+		changer.imageStartX = changer.subtractedX = (mainWindow.cols - scaledImg.cols) / 2;
+		changer.imageMaxX = changer.imageStartX + scaledImg.cols - 1;
+		changer.imageStartY = changer.subtractedY = (mainWindow.rows - scaledImg.rows) / 2;
+		changer.imageMaxY = changer.imageStartY + scaledImg.rows - 1;
+
+		return scaledImg;
 	}
 
 	return image;
